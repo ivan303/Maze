@@ -3,10 +3,13 @@ var server = require("./server"),
 	requestHandlers = require("./requestHandlers");
 
 var handle = {};
-handle["/maze"] = requestHandlers.createMaze;
+handle["GET:/maze"] = requestHandlers.createMazeGET;
+handle["PUT:/maze"] = requestHandlers.createMazePUT;
 handle["/maze/id/describe"] = requestHandlers.describeMaze;
 handle["/maze/id/exit"] = requestHandlers.getExit;
 handle["/maze/id/quotation"] = requestHandlers.calculateCosts;
-handle["maze/id/path"] = requestHandlers.getPath;
+handle["/maze/id/path"] = requestHandlers.getPath;
+handle["/js"] = requestHandlers.getJS;
+
 
 server.start(router.route, handle);
