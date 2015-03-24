@@ -1,7 +1,15 @@
 // array of objects { maze: object, id: int }
 // maze = { structure: , entrance: , exit: }
 // during adding maze exits coords will be remembered as entrance coords
-var mazes = [],
+// var mazes = [{ maze: { structure: [[1,1,1],[1,0,0],[1,0,1]], entrance: [2,1], exit: [1,2]}, id: 1 }],
+var mazes = [{ maze: { structure: [ [1,1,1,1,1,1,1,1],
+					 				[1,0,0,0,1,1,0,0],
+					 				[1,1,1,0,1,1,0,1],
+					 				[1,1,0,0,0,0,0,1],
+					 				[1,1,0,1,1,0,1,1],
+					 				[1,1,0,1,1,0,1,1],
+					 				[1,0,0,0,1,0,1,1],
+					 				[1,1,0,1,1,1,1,1]], entrance: [7,2], exit: [1,7]}, id: 1 }],
 	nextMazeIndex = 0;
 
 function addMaze (maze, entrance) {
@@ -225,15 +233,110 @@ function checkMazeStructure (maze, entrance, exit) {
 
 //checkMazeStructure ([[1,1,1],[1,0,0],[1,0,1]],[2,1],[1,2]);
 // checkMazeStructure([[1,1,1,1,1,1,1,1],
-					[1,0,0,0,1,1,0,0],
-					[1,1,1,0,1,1,0,1],
-					[1,1,0,0,0,0,0,1],
-					[1,1,0,1,1,0,1,1],
-					[1,1,0,1,1,0,1,1],
-					[1,0,0,0,0,0,1,1],
-					[1,1,0,1,1,1,1,1]],[7,2],[1,7]);
+					// [1,0,0,0,1,1,0,0],
+					// [1,1,1,0,1,1,0,1],
+					// [1,1,0,0,0,0,0,1],
+					// [1,1,0,1,1,0,1,1],
+					// [1,1,0,1,1,0,1,1],
+					// [1,0,0,0,1,0,1,1],
+					// [1,1,0,1,1,1,1,1]],[7,2],[1,7]);
 
+//getCosts(1,2,3,4);
+getPath(1);
 
+function getCosts (id, wallPrice, corridorPrice, torchPrice) {
+	var mazeIndex;
+	for (var i=0; i<mazes.length; i++) {
+		if (mazes[i].id == id) {
+			mazeIndex = i;
+			break;
+		}
+	}
+
+	var wallsAndCorridorsNumber = getElementsNumbers(id);
+	var entrance = mazes[mazeIndex].maze.entrance;
+	var exit = mazes[mazeIndex].maze.exit;
+	var maze = mazes[mazeIndex].maze.structure;
+
+	var visited = [],
+		queue = [], 
+		dir = { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3 };
+
+	var entranceDir;
+	if (entrance[0] == 0) {
+		entranceDir = dir.UP;
+	} else if (entrance[0] == maze.length-1) {
+		entranceDir = dir.DOWN;
+	} else if (entrance[1] == 0) {
+		entranceDir = dir.LEFT;
+	} else if (entrance[1] == maze.length-1) {
+		entranceDir = dir.RIGHT;
+	}
+
+	queue.push({ row: entrance[0], col: entrance[1], dir: entranceDir, torch: true });
+	while (queue.length != 0) {
+		var field = queue.shift();
+
+		if (field.dir != dir.UP && field.row > 0) { // can go up
+			if (maze[field.row-1][field.col] == 0) {
+				if (field.torch) {
+					queue.push({ row: field.row-1, col: field.col, dir: dir.DOWN, torch: false });
+				} else {
+					queue.push({ row: field.row-1, col: field.col, dir: dir.DOWN, torch: true });
+				}
+
+			}
+		}
+
+		if (field.dir != dir.DOWN && field.row < maze.length-1) { // can go down
+			if (maze[field.row+1][field.col] == 0) {
+				if (field.torch) {
+					queue.push({ row: field.row+1, col: field.col, dir: dir.UP, torch: false });
+				} else {
+					queue.push({ row: field.row+1, col: field.col, dir: dir.UP, torch: true });
+				}
+			}
+		}
+
+		if (field.dir != dir.RIGHT && field.col < maze.length-1) { // can go right
+			if (maze[field.row][field.col+1] == 0) {
+				if (field.torch) {
+					queue.push({ row: field.row, col: field.col+1, dir: dir.LEFT, torch: false });
+				} else {
+					queue.push({ row: field.row, col: field.col+1, dir: dir.LEFT, torch: true });
+				}
+			}
+		}
+
+		if (field.dir != dir.LEFT && field.col > 0) { // can go down
+			if (maze[field.row][field.col-1] == 0) {
+				if (field.torch) {
+					queue.push({ row: field.row, col: field.col-1, dir: dir.RIGHT, torch: false });
+				} else {
+					queue.push({ row: field.row, col: field.col-1, dir: dir.RIGHT, torch: true });
+				}
+
+			}
+		}
+
+		visited.push(field);
+	}
+
+	var torchNumber = 0;
+	for (var i=0; i<visited.length; i++) {
+		if (visited[i].torch) {
+			torchNumber++;
+		}
+	}
+
+	var wallsPrice = wallPrice * wallsAndCorridorsNumber[0];
+	var corridorsPrice = corridorPrice * wallsAndCorridorsNumber[1];
+	var torchsPrice = torchPrice * torchNumber;
+
+	console.log("walls price: " + wallsPrice);
+	console.log("corridors price: " + corridorsPrice);
+	console.log("torchs price: " + torchsPrice);
+}
 
 function getExitCoords(id) {
 	var mazeIndex;
@@ -249,11 +352,94 @@ function getExitCoords(id) {
 	}
 }
 
+function getPath (id) {
+	var mazeIndex;
+	for (var i=0; i<mazes.length; i++) {
+		if (mazes[i].id == id) {
+			mazeIndex = i;
+			break;
+		}
+	}
+
+	var entrance = mazes[mazeIndex].maze.entrance;
+	var exit = mazes[mazeIndex].maze.exit;
+	var maze = mazes[mazeIndex].maze.structure;
+
+	var visited = [],
+		queue = [], 
+		dir = { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3 };
+
+	var entranceDir;
+	if (entrance[0] == 0) {
+		entranceDir = dir.UP;
+	} else if (entrance[0] == maze.length-1) {
+		entranceDir = dir.DOWN;
+	} else if (entrance[1] == 0) {
+		entranceDir = dir.LEFT;
+	} else if (entrance[1] == maze.length-1) {
+		entranceDir = dir.RIGHT;
+	}
+
+
+	queue.push({ row: entrance[0], col: entrance[1], dir: entranceDir });
+	while (queue.length != 0) {
+		var field = queue.shift();
+
+		if (field.dir != dir.UP && field.row > 0) { // can go up
+			if (maze[field.row-1][field.col] == 0) {	
+				queue.push({ row: field.row-1, col: field.col, dir: dir.DOWN, rowPrev: field.row, colPrev: field.col });
+			}
+		}
+
+		if (field.dir != dir.DOWN && field.row < maze.length-1) { // can go down
+			if (maze[field.row+1][field.col] == 0) {
+				queue.push({ row: field.row+1, col: field.col, dir: dir.UP, rowPrev: field.row, colPrev: field.col });
+			}
+		}
+
+		if (field.dir != dir.RIGHT && field.col < maze.length-1) { // can go right
+			if (maze[field.row][field.col+1] == 0) {
+				queue.push({ row: field.row, col: field.col+1, dir: dir.LEFT, rowPrev: field.row, colPrev: field.col });
+			}
+		}
+
+		if (field.dir != dir.LEFT && field.col > 0) { // can go down
+			if (maze[field.row][field.col-1] == 0) {
+				queue.push({ row: field.row, col: field.col-1, dir: dir.RIGHT, rowPrev: field.row, colPrev: field.col });
+			}
+		}
+
+		visited.push(field);
+		if (field.row == exit[0] && field.col == exit[1]) {
+			break;
+		}
+	}
+
+	debugger;
+
+	path = [];
+	tempField = [exit[0], exit[1]];
+	path.push([tempField[0],tempField[1]]);
+	while (tempField[0] != entrance[0] || tempField[1] != entrance[1]) {
+		for (var i=0; i<visited.length; i++) {
+			if (tempField[0] == visited[i].row && tempField[1] == visited[i].col) {
+				tempField[0] = visited[i].rowPrev;
+				tempField[1] = visited[i].colPrev;
+				path.push([tempField[0],tempField[1]]);
+				break;
+			}
+		}
+	}
+
+	path = path.reverse();
+	console.log(path);
+}
+
 function getElementsNumbers(id) {
 	var mazeIndex;
 	for (var i=0; i<mazes.length; i++) {
 		if (mazes[i].id == id) {
-			mazeindex = i;
+			mazeIndex = i;
 			break;
 		}
 	}
@@ -282,7 +468,7 @@ function getElementsNumbers(id) {
 	return [];
 }
 
-function getCosts (wallPrice, corridorPrice, torchPrice)
+
 
 
 
