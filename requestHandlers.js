@@ -1,10 +1,15 @@
-var fs = require('fs');
+var fs = require('fs'),
+	handlingMazes = require('./handlingMazes');
 
 function createMazeGET(response, request) {
 	console.log("Creating maze.");
 	console.log("");
 	// console.log(request.method);
 	// console.log(request);
+
+	// handlingMazes.addMaze();
+	// console.log("value of a: " + handlingMazes.showval());
+
 
 	fs.readFile('html/maze.html', function(err, data) {
 		response.writeHead(200, {"Content-Type": "text/html"});
@@ -13,7 +18,13 @@ function createMazeGET(response, request) {
 	});
 };
 
-function createMazePUT(response, request) {
+function createMazePUT(response, request, pathname, parsedData) {
+	var maze = parsedData.maze;
+	var entrance = parsedData.entrance;
+
+	// return value
+	//handlingMazes.addMaze(maze, entrance);
+	handlingMazes.checkMazeStructure(maze,entrance,exit);
 
 };
 
