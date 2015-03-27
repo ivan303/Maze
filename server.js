@@ -6,8 +6,8 @@ function start(route, handle) {
 
 	function onRequest(request, response) {
 		var pathname = url.parse(request.url).pathname;
-		console.log("Request for " + pathname + " received.");
-		console.log(typeof request);
+		// console.log("Request for " + pathname + " received.");
+		// console.log(typeof request);
 
 		var postData = "";
 		if (request.method == 'PUT') {
@@ -17,7 +17,7 @@ function start(route, handle) {
 
 			request.addListener("end", function () {
 				var parsedData = JSON.parse(postData);
-				console.log(parsedData);
+				console.log("server got data");
 				route(handle, pathname, response, request, parsedData);
 			});
 		} else {

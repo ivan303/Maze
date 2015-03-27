@@ -25,12 +25,12 @@ var urlMatcher = {
 }
 
 function resolveURL (pathname, request) {
-	console.log("in resolveURL");
-	console.log(pathname);
-	console.log(urlMatcher.maze);
+	//console.log("in resolveURL");
+	//console.log(pathname);
+	//console.log(urlMatcher.maze);
 	switch (true) {
 		case urlMatcher.maze.test(pathname): 
-			console.log("route matche to maze");
+			//console.log("route matche to maze");
 			if (request.method == 'GET') {
 				return { "path": "GET:/maze" };	
 			} else if (request.method == 'PUT') {
@@ -50,7 +50,7 @@ function resolveURL (pathname, request) {
 			console.log("route match to path");
 			break;
 		case urlMatcher.js.test(pathname):
-			console.log("route match to js file");
+			//console.log("route match to js file");
 			return { "path": "/js" }
 			break;
 	}

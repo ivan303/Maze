@@ -31,16 +31,20 @@ $(document).ready(function () {
 		};
 
 		var jsonToSend = JSON.stringify(objectToSend);
-		console.log(typeof a);
-		console.log(a);
 
 		$.ajax({
 		url: "/maze",
 		method: "PUT", 
 		data: jsonToSend,
 		dataType: 'json'
-		}).done(function (msg) {
-			alert("Data Saved: " + msg);
+		}).done(function (data, textStatus, jqXHR) { // textStatus == success
+			alert("Data Saved: " + data);
+			alert(textStatus);
+			alert(jqXHR);
+		}).fail(function (jqXHR, textStatus, errorThrown) { // textStatus == error
+			alert("Fail " + jqXHR);
+			alert(textStatus);
+			alert(errorThrown);
 		});	
 	});	
 })

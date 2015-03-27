@@ -2,14 +2,12 @@ var fs = require('fs'),
 	handlingMazes = require('./handlingMazes');
 
 function createMazeGET(response, request) {
-	console.log("Creating maze.");
-	console.log("");
+	//console.log("Creating maze.");
+	//console.log("");
 	// console.log(request.method);
 	// console.log(request);
 
 	// handlingMazes.addMaze();
-	// console.log("value of a: " + handlingMazes.showval());
-
 
 	fs.readFile('html/maze.html', function(err, data) {
 		response.writeHead(200, {"Content-Type": "text/html"});
@@ -22,9 +20,24 @@ function createMazePUT(response, request, pathname, parsedData) {
 	var maze = parsedData.maze;
 	var entrance = parsedData.entrance;
 
+	console.log("createMazePUT");
+
 	// return value
-	//handlingMazes.addMaze(maze, entrance);
-	handlingMazes.checkMazeStructure(maze,entrance,exit);
+	console.log(maze);
+	console.log(entrance);
+	
+
+	var creatingMazeResponse = handlingMazes.addMaze(maze, entrance);
+
+	if (typeof creatingMazeResponse === "number") { // maze properly created; maze id returned
+		response.writeHead(200, {"Content-Type": "text/plain"});
+		response.write(String(creatingMazeResponse));
+		response.end();
+	} else if (typeof creatingMazeResponse === "string") { // maze not properly created; error message returned
+		response.writeHead(400, {"Content-Type": "text/plain"});
+		response.write(creatingMazeResponse);
+		response.end();
+	}
 
 };
 

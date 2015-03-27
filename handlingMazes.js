@@ -10,33 +10,42 @@ var mazes = [{ maze: { structure: [ [1,1,1,1,1,1,1,1],
 					 				[1,1,0,1,1,0,1,1],
 					 				[1,0,0,0,1,0,1,1],
 					 				[1,1,0,1,1,1,1,1]], entrance: [7,2], exit: [1,7]}, id: 1 }],
-	nextMazeIndex = 0;
+	nextMazeId = 2;
 
 function addMaze (maze, entrance) {
 	
 	// check if maze is a square
 	var numOfRows = maze.length;
-	for (var i = 0; i<numOfRows; i++) {
-		if (numOfRows != numOfRows[i].length) {
+	var i = 0,
+		j = 0,
+		message = "";
+
+	for (i = 0; i<numOfRows; i++) {
+		if (numOfRows != maze[i].length) {
 			// maze isn't a square
-			//...
+			message = "Maze is not a square.";
+			return message;
 		}
 	}
-
+	
 	// check if maze has minimum size: 3
 	if (numOfRows < 3) {
 		// maze is too small
+		message = "Maze is too small.";
+		return message;
 	}
-
+	
 	// check if maze consists only with zeros and ones
-	for (var i=0; i<numOfRows; i++) {
-		for (var j=0; j<numOfRows; j++) {
+	for (i=0; i<numOfRows; i++) {
+		for (j=0; j<numOfRows; j++) {
 			if (maze[i][j] != 0 && maze[i][j] != 1) {
 				// maze dosn't consists only with zeros and ones
+				message = "Maze dosn't consists only with zeros and ones";
+				return message;
 			}
 		}
 	}
-
+	
 
 	// checking if maze is valid
 	// we assume that there are only two fileds on external walls with 0 - entrance and exit
@@ -48,27 +57,36 @@ function addMaze (maze, entrance) {
 	// check if entrance coords has value 0 in maze
 	if (maze[entrance[0]][entrance[1]] == 1) {
 		// entrance isn't 0
+		message = "Field with entrance is not zero.";
+		return message;
 	}
+	
 
 	// check if entrance is on external walls excluding corners
 	if (entrance[0] == 0 || entrance[0] == numOfRows-1) {
 		if (entrance[1] == 0 || entrance[1] == numOfRows-1) {
 			// entrance in corner
+			message = "Entrance is in the corner.";
+			return message;
 		}
 	} else if (entrance[1] == 0 || entrance[1] == numOfRows-1) {
 		if (entrance[0] == 0 || entrance[0] == numOfRows-1) {
 			// entrance in corner
+			message = "Entrance is in the corner.";
+			return message;
 		}
 	} else {
 		// entrance inside maze
+		message = "Entrance can't be inside maze.";
+		return message;
 	}
 
 	// check fields on external walls - two zeros
 	var numOfZerosOnExWalls = 0;
 	var exit = [];
-	for (var i=0; i<numOfRows; i++) {
+	for (i=0; i<numOfRows; i++) {
 		if (i == 0 || i == numOfRows-1) { // up and down of maze
-			for (var j=0; j<numOfRows; j++) {
+			for (j=0; j<numOfRows; j++) {
 				if (maze[i][j] == 0) {
 					numOfZerosOnExWalls++;
 					if (i != entrance[0] || j != entrance[1]) { // potential exit
@@ -82,48 +100,73 @@ function addMaze (maze, entrance) {
 				numOfZerosOnExWalls++;
 				if (i != entrance[0] || 0 != entrance[1]) {
 					exit.push(i);
-					exit.push(j);
+					exit.push(0);
 				}
 			}
 			if (maze[i][numOfRows-1] == 0) {
 				numOfZerosOnExWalls++;
 				if (i != entrance[0] || numOfRows-1 != entrance[1]) {
 					exit.push(i);
-					exit.push(j);
+					exit.push(numOfRows-1);
 				}
 			}
 		}
 	}
-
+	
 	if (numOfZerosOnExWalls != 2) {
 		// zeros on external wall not equal to 2
+		message = "There can be only two zeros on external fields - entrance and exit.";
+		return message;
 	}
-
+	
 	// check if exit is on external walls excluding corners
 	if (exit[0] == 0 || exit[0] == numOfRows-1) {
 		if (exit[1] == 0 || exit[1] == numOfRows-1) {
 			// exit in corner
+			message = "Exit is in the corner.";
+			return message;
 		}
 	} else if (exit[1] == 0 || exit[1] == numOfRows-1) {
 		if (exit[0] == 0 || exit[0] == numOfRows-1) {
 			// exit in corner
+			message = "Exit is in the corner.";
+			return message;
 		}
 	} else {
 		// exit inside maze
+		message = "Exit can't be insiede maze.";
+		return message;
 	}
-
+	
 	// check if entrance and exit aren't connected directly
 	if (entrance[0] == exit[0]) {
 		if (entrance[1]+1 == exit[1] || entrance[1] == exit[1]+1) {
 			// directly connected
+			message = "Entrance and exit can't be connected directly.";
+			return message;
 		}
 	} else if (entrance[1] == exit[1]) {
 		if (entrance[0]+1 == exit[0] || entrance[0] == exit[0]+1) {
 			// directly connected
+			message = "Entrance and exit can't be connected directly.";
+			return message;
 		}
 	}
-
+	
 	// check if exists path from entrance to exit
+	var isStructureValid = checkMazeStructure(maze, entrance, exit);
+	var new_maze;
+
+	if (!isStructureValid) {
+		message = "Inside structure of maze is not valid.";
+		return message;
+	} else {
+		new_maze = { maze: { structure: maze, entrance: entrance }, id: nextMazeId };
+		mazes.push(new_maze);
+		nextMazeId++;
+		return nextMazeId-1;	
+	}
+
 
 }
 
@@ -131,8 +174,10 @@ function checkMazeStructure (maze, entrance, exit) {
 	var visited = [],
 		queue = [],
 		dir = { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3 };
+	var i = 0,
+		visited_length = 0,
+		maze_length = maze.length;
 
-	//debugger;
 	var entranceDir;
 	if (entrance[0] == 0) {
 		entranceDir = dir.UP;
@@ -148,16 +193,17 @@ function checkMazeStructure (maze, entrance, exit) {
 	queue.push({ row: entrance[0], col: entrance[1], dir: entranceDir });
 	while (queue.length != 0 && isRight) {
 		var field = queue.shift();
+		visited_length = visited.length;
 
 		if (field.dir != dir.UP && field.row > 0) { // can go up
 			if (maze[field.row-1][field.col] == 0) {
-				var i = 0;
-				for (i; i<visited.length; i++) {
+				i = 0;
+				for (i; i<visited_length; i++) {
 					if (visited[i].row == field.row-1 && visited[i].col == field.col) {
 						break;
 					} 
 				}
-				if (i == visited.length) {
+				if (i == visited_length) {
 					queue.push({ row: field.row-1, col: field.col, dir: dir.DOWN});
 				} else {
 					isRight = false;
@@ -165,15 +211,15 @@ function checkMazeStructure (maze, entrance, exit) {
 			}
 		}
 
-		if (field.dir != dir.DOWN && field.row < maze.length-1) { // can go down
+		if (field.dir != dir.DOWN && field.row < maze_length-1) { // can go down
 			if (maze[field.row+1][field.col] == 0) {
-				var i = 0;
-				for (i; i<visited.length; i++) {
+				i = 0;
+				for (i; i<visited_length; i++) {
 					if (visited[i].row == field.row+1 && visited[i].col == field.col) {
 						break;
 					}
 				}
-				if (i == visited.length) {
+				if (i == visited_length) {
 					queue.push({ row: field.row+1, col: field.col, dir: dir.UP });
 				} else {
 					isRight = false;
@@ -181,15 +227,15 @@ function checkMazeStructure (maze, entrance, exit) {
 			}
 		}
 
-		if (field.dir != dir.RIGHT && field.col < maze.length-1) { // can go right
+		if (field.dir != dir.RIGHT && field.col < maze_length-1) { // can go right
 			if (maze[field.row][field.col+1] == 0) {
-				var i = 0;
-				for (i; i<visited.length; i++) {
+				i = 0;
+				for (i; i<visited_length; i++) {
 					if (visited[i].row == field.row && visited[i].col == field.col+1) {
 						break;
 					}
 				}
-				if (i == visited.length) {
+				if (i == visited_length) {
 					queue.push({ row: field.row, col: field.col+1, dir: dir.LEFT });
 				} else {
 					isRight = false;
@@ -199,13 +245,13 @@ function checkMazeStructure (maze, entrance, exit) {
 
 		if (field.dir != dir.LEFT && field.col > 0) { // can go down
 			if (maze[field.row][field.col-1] == 0) {
-				var i = 0;
-				for (i; i<visited.length; i++) {
+				i = 0;
+				for (i; i<visited_length; i++) {
 					if (visited[i].row == field.row && visited[i].col == field.col-1) {
 						break;
 					}
 				}
-				if (i == visited.length) {
+				if (i == visited_length) {
 					queue.push({ row: field.row, col: field.col-1, dir: dir.RIGHT });
 				} else {
 					isRight = false;
@@ -217,17 +263,18 @@ function checkMazeStructure (maze, entrance, exit) {
 		visited.push(field);
 	}
 
-	var i = 0;
-	for (i; i<visited.length; i++) {
+	i = 0;
+	visited_length = visited.length;
+	for (i; i<visited_length; i++) {
 		if (visited[i].row == exit[0] && visited[i].col == exit[1]) {
 			break;
 		}
 	}
 
-	if (isRight && i < visited.length) { // is OK
-		console.log("ok");
+	if (isRight && i < visited_length) { // is OK
+		return true;
 	} else {
-		console.log("not ok");
+		return false;
 	}
 }
 
@@ -242,11 +289,16 @@ function checkMazeStructure (maze, entrance, exit) {
 					// [1,1,0,1,1,1,1,1]],[7,2],[1,7]);
 
 //getCosts(1,2,3,4);
-getPath(1);
+//getPath(1);
 
 function getCosts (id, wallPrice, corridorPrice, torchPrice) {
-	var mazeIndex;
-	for (var i=0; i<mazes.length; i++) {
+	var mazeIndex,
+		i,
+		mazes_length,
+		maze_length;
+	i = 0;
+	mazes_length = mazes.length;
+	for (i=0; i<mazes_length; i++) {
 		if (mazes[i].id == id) {
 			mazeIndex = i;
 			break;
@@ -263,13 +315,15 @@ function getCosts (id, wallPrice, corridorPrice, torchPrice) {
 		dir = { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3 };
 
 	var entranceDir;
+
+	maze_length = maze.length;
 	if (entrance[0] == 0) {
 		entranceDir = dir.UP;
-	} else if (entrance[0] == maze.length-1) {
+	} else if (entrance[0] == maze_length-1) {
 		entranceDir = dir.DOWN;
 	} else if (entrance[1] == 0) {
 		entranceDir = dir.LEFT;
-	} else if (entrance[1] == maze.length-1) {
+	} else if (entrance[1] == maze_length-1) {
 		entranceDir = dir.RIGHT;
 	}
 
@@ -288,7 +342,7 @@ function getCosts (id, wallPrice, corridorPrice, torchPrice) {
 			}
 		}
 
-		if (field.dir != dir.DOWN && field.row < maze.length-1) { // can go down
+		if (field.dir != dir.DOWN && field.row < maze_length-1) { // can go down
 			if (maze[field.row+1][field.col] == 0) {
 				if (field.torch) {
 					queue.push({ row: field.row+1, col: field.col, dir: dir.UP, torch: false });
@@ -298,7 +352,7 @@ function getCosts (id, wallPrice, corridorPrice, torchPrice) {
 			}
 		}
 
-		if (field.dir != dir.RIGHT && field.col < maze.length-1) { // can go right
+		if (field.dir != dir.RIGHT && field.col < maze_length-1) { // can go right
 			if (maze[field.row][field.col+1] == 0) {
 				if (field.torch) {
 					queue.push({ row: field.row, col: field.col+1, dir: dir.LEFT, torch: false });
@@ -323,7 +377,7 @@ function getCosts (id, wallPrice, corridorPrice, torchPrice) {
 	}
 
 	var torchNumber = 0;
-	for (var i=0; i<visited.length; i++) {
+	for (i=0; i<visited.length; i++) {
 		if (visited[i].torch) {
 			torchNumber++;
 		}
@@ -339,8 +393,12 @@ function getCosts (id, wallPrice, corridorPrice, torchPrice) {
 }
 
 function getExitCoords(id) {
-	var mazeIndex;
-	for (var i=0; i<mazes.length; i++) {
+	var mazeIndex,
+		i,
+		maze_length,
+		mazes_length;
+	mazes_length = mazes.length;
+	for (i=0; i<mazes_length; i++) {
 		if (mazes[i].id == id) {
 			mazeindex = i;
 			break;
@@ -353,8 +411,12 @@ function getExitCoords(id) {
 }
 
 function getPath (id) {
-	var mazeIndex;
-	for (var i=0; i<mazes.length; i++) {
+	var mazeIndex,
+		i,
+		mazes_length,
+		maze_length;
+	mazes_length = mazes.length;
+	for (i=0; i<mazes_length; i++) {
 		if (mazes[i].id == id) {
 			mazeIndex = i;
 			break;
@@ -370,13 +432,14 @@ function getPath (id) {
 		dir = { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3 };
 
 	var entranceDir;
+	maze_length = maze.length;
 	if (entrance[0] == 0) {
 		entranceDir = dir.UP;
-	} else if (entrance[0] == maze.length-1) {
+	} else if (entrance[0] == maze_length-1) {
 		entranceDir = dir.DOWN;
 	} else if (entrance[1] == 0) {
 		entranceDir = dir.LEFT;
-	} else if (entrance[1] == maze.length-1) {
+	} else if (entrance[1] == maze_length-1) {
 		entranceDir = dir.RIGHT;
 	}
 
@@ -391,13 +454,13 @@ function getPath (id) {
 			}
 		}
 
-		if (field.dir != dir.DOWN && field.row < maze.length-1) { // can go down
+		if (field.dir != dir.DOWN && field.row < maze_length-1) { // can go down
 			if (maze[field.row+1][field.col] == 0) {
 				queue.push({ row: field.row+1, col: field.col, dir: dir.UP, rowPrev: field.row, colPrev: field.col });
 			}
 		}
 
-		if (field.dir != dir.RIGHT && field.col < maze.length-1) { // can go right
+		if (field.dir != dir.RIGHT && field.col < maze_length-1) { // can go right
 			if (maze[field.row][field.col+1] == 0) {
 				queue.push({ row: field.row, col: field.col+1, dir: dir.LEFT, rowPrev: field.row, colPrev: field.col });
 			}
@@ -417,11 +480,13 @@ function getPath (id) {
 
 	debugger;
 
-	path = [];
-	tempField = [exit[0], exit[1]];
+	var path = [];
+	var tempField = [exit[0], exit[1]];
+	var visited_length = visited.length;
+
 	path.push([tempField[0],tempField[1]]);
 	while (tempField[0] != entrance[0] || tempField[1] != entrance[1]) {
-		for (var i=0; i<visited.length; i++) {
+		for (var i=0; i<visited_length; i++) {
 			if (tempField[0] == visited[i].row && tempField[1] == visited[i].col) {
 				tempField[0] = visited[i].rowPrev;
 				tempField[1] = visited[i].colPrev;
@@ -436,8 +501,11 @@ function getPath (id) {
 }
 
 function getElementsNumbers(id) {
-	var mazeIndex;
-	for (var i=0; i<mazes.length; i++) {
+	var mazeIndex,
+		mazes_length,
+		i, j;
+	mazes_length = mazes.length;
+	for (i=0; i<mazes_length; i++) {
 		if (mazes[i].id == id) {
 			mazeIndex = i;
 			break;
@@ -448,10 +516,12 @@ function getElementsNumbers(id) {
 		var numberOfZeros = 0,
 			numberOfOnes = 0,
 			resultArray = [],
-			maze = mazes[mazeIndex].maze.structure;
+			maze = mazes[mazeIndex].maze.structure,
+			maze_length;
+		maze_length = maze.length;
 
-		for (var i=0; i<maze.length; i++) {
-			for (var j=0; j<maze.length; j++) {
+		for (i=0; i<maze_length; i++) {
+			for (j=0; j<maze_length; j++) {
 				if (maze[i][j] == 0) {
 					numberOfZeros++;
 				} else {
@@ -469,13 +539,9 @@ function getElementsNumbers(id) {
 }
 
 
-
-
-
-
-function showval () {
-	return a;
-}
-
 exports.addMaze = addMaze;
-exports.showval = showval;
+exports.checkMazeStructure = checkMazeStructure;
+exports.getCosts = getCosts;
+exports.getExitCoords = getExitCoords;
+exports.getPath = getPath;
+exports.getElementsNumbers = getElementsNumbers;
