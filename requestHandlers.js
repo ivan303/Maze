@@ -16,9 +16,9 @@ function createMazeGET(response, request) {
 	});
 };
 
-function createMazePUT(response, request, pathname, parsedData) {
-	var maze = parsedData.maze;
-	var entrance = parsedData.entrance;
+function createMazePUT(response, request, options) {
+	var maze = options.parsedData.maze;
+	var entrance = options.parsedData.entrance;
 
 	console.log("createMazePUT");
 
@@ -41,7 +41,19 @@ function createMazePUT(response, request, pathname, parsedData) {
 
 };
 
-function describeMaze (response, request) {};
+function describeMaze (response, request, options) {
+	var wallsAndCorridors = handlingMazes.getElementsNumbers(options.mazeId);
+	if (wallsAndCorridors.length != 0) {
+		response.writeHead(200, {"Content-Type": "text/plain"});
+		response.write("Number of walls: " + String(wallsAndCorridors[0]) + "\n");
+		response.write("Number of corridors: " + String(wallsAndCorridors[1]));
+		response.end();
+	} else {
+		response.writeHead(200, {"Content-Type": "text/plain"});
+		response.write("There isn't maze of id #" + String(options.mazeId));
+		response.end();
+	}
+};
 function getExit (response, request) {};
 function calculateCosts (response, request) {
 	response.writeHead(200, {"Content-Type": "text/plain"});
@@ -50,10 +62,10 @@ function calculateCosts (response, request) {
 };
 function getPath (response, request) {};
 
-function getJS (response, request, pathname) {
+function getJS (response, request, options) {
 
 	// need to extract path in another way
-	path = pathname.slice(1);
+	var path = options.pathname.slice(1);
 	fs.readFile(path, function(err, data) {
 		response.writeHead(200, {"Content-Type": "text/javascript"});
 		response.write(data);

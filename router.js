@@ -5,7 +5,7 @@ function route(handle, pathname, response, request, parsedData) {
 	var handlerKey = resolveURL(pathname, request);
 
 	if (typeof handle[handlerKey.path] === 'function') {
-		handle[handlerKey.path](response, request, pathname, parsedData);
+		handle[handlerKey.path](response, request, { pathname: pathname, parsedData: parsedData, mazeId: handlerKey.id });
 	} else {
 		console.log("No request handler found for " + pathname);
 		response.writeHead(404, {"Content-Type": "text/plain"});
@@ -38,7 +38,9 @@ function resolveURL (pathname, request) {
 			}
 			break;
 		case urlMatcher.describe.test(pathname):
-			console.log("route match to describe");
+			// console.log("route match to describe");
+			var id = parseInt(pathname.match(/[0-9]+/)[0]);
+			return { "path": "/maze/id/describe", "id" : id };
 			break;
 		case urlMatcher.exit.test(pathname):
 			console.log("route match to exit");
