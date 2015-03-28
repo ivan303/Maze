@@ -1,3 +1,5 @@
+'use strict'
+
 // array of objects { maze: object, id: int }
 // maze = { structure: , entrance: , exit: }
 // during adding maze exits coords will be remembered as entrance coords
@@ -161,7 +163,7 @@ function addMaze (maze, entrance) {
 		message = "Inside structure of maze is not valid.";
 		return message;
 	} else {
-		new_maze = { maze: { structure: maze, entrance: entrance }, id: nextMazeId };
+		new_maze = { maze: { structure: maze, entrance: entrance, exit: exit }, id: nextMazeId };
 		mazes.push(new_maze);
 		nextMazeId++;
 		return nextMazeId-1;	
@@ -395,18 +397,24 @@ function getCosts (id, wallPrice, corridorPrice, torchPrice) {
 function getExitCoords(id) {
 	var mazeIndex,
 		i,
-		maze_length,
-		mazes_length;
+		mazes_length,
+		exit = [];
 	mazes_length = mazes.length;
 	for (i=0; i<mazes_length; i++) {
 		if (mazes[i].id == id) {
-			mazeindex = i;
+			mazeIndex = i;
 			break;
 		}
 	}
+	debugger;
+
 
 	if (mazeIndex != undefined) {
-		return mazes[mazeIndex].maze.exit;
+		exit.push(mazes[mazeIndex].maze.exit[0]);
+		exit.push(mazes[mazeIndex].maze.exit[1]);
+		return exit;
+	} else {
+		return []
 	}
 }
 

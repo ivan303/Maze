@@ -40,10 +40,12 @@ function resolveURL (pathname, request) {
 		case urlMatcher.describe.test(pathname):
 			// console.log("route match to describe");
 			var id = parseInt(pathname.match(/[0-9]+/)[0]);
-			return { "path": "/maze/id/describe", "id" : id };
+			return { "path": "/maze/id/describe", "id": id };
 			break;
 		case urlMatcher.exit.test(pathname):
-			console.log("route match to exit");
+			// console.log("route match to exit");
+			var id = parseInt(pathname.match(/[0-9]+/)[0]);
+			return { "path": "/maze/id/exit", "id": id };
 			break;
 		case urlMatcher.quotation.test(pathname):
 			console.log("route match to quotation");
