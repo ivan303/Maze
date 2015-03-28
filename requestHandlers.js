@@ -72,12 +72,46 @@ function getExit (response, request, options) {
 		response.end();
 	}
 };
-function calculateCosts (response, request) {
-	response.writeHead(200, {"Content-Type": "text/plain"});
-	response.write("quotation");
-	response.end();
+function calculateCosts (response, request, options) {
+	var wallPrice,
+		corridorPrice,
+		torchPrice,
+		countedCosts,
+		objToSend;
+	wallPrice = parseFloat(options.params.wallPrice);
+	corridorPrice = parseFloat(options.params.corridorPrice);
+	torchPrice = parseFloat(options.params.torchPrice);
+
+	countedCosts = handlingMazes.getCosts(options.mazeId, wallPrice, corridorPrice, torchPrice);
+
+	if (countedCosts.mazeExists) {
+		objToSend = { price: countedCosts.price };
+		response.writeHead(200, {"Content-Type": "application/json"});
+		response.write(JSON.stringify(objToSend));
+		response.end();
+	} else {
+		response.writeHead(200, {"Content-Type": "text/plain"});
+		response.write("There isn't maze of id #" + String(options.mazeId));
+		response.end();
+	}
+
+
+
 };
-function getPath (response, request) {};
+function getPath (response, request, options) {
+	var path = handlingMazes.getPath(options.mazeId);
+	var objToSend;
+	if (path.length != 0) {
+		objToSend = { path: path };
+		response.writeHead(200, {"Content-Type": "application/json"});
+		response.write(JSON.stringify(objToSend));
+		response.end();
+	} else {
+		response.writeHead(200, {"Content-Type": "application/json"});
+		response.write("There isn't maze of id #" + String(options.mazeId));
+		response.end();
+	}
+};
 
 function getJS (response, request, options) {
 

@@ -280,19 +280,6 @@ function checkMazeStructure (maze, entrance, exit) {
 	}
 }
 
-//checkMazeStructure ([[1,1,1],[1,0,0],[1,0,1]],[2,1],[1,2]);
-// checkMazeStructure([[1,1,1,1,1,1,1,1],
-					// [1,0,0,0,1,1,0,0],
-					// [1,1,1,0,1,1,0,1],
-					// [1,1,0,0,0,0,0,1],
-					// [1,1,0,1,1,0,1,1],
-					// [1,1,0,1,1,0,1,1],
-					// [1,0,0,0,1,0,1,1],
-					// [1,1,0,1,1,1,1,1]],[7,2],[1,7]);
-
-//getCosts(1,2,3,4);
-//getPath(1);
-
 function getCosts (id, wallPrice, corridorPrice, torchPrice) {
 	var mazeIndex,
 		i,
@@ -307,91 +294,99 @@ function getCosts (id, wallPrice, corridorPrice, torchPrice) {
 		}
 	}
 
-	var wallsAndCorridorsNumber = getElementsNumbers(id);
-	var entrance = mazes[mazeIndex].maze.entrance;
-	var exit = mazes[mazeIndex].maze.exit;
-	var maze = mazes[mazeIndex].maze.structure;
+	if (mazeIndex != undefined) {
+		var wallsAndCorridorsNumber = getElementsNumbers(id);
+		var entrance = mazes[mazeIndex].maze.entrance;
+		var exit = mazes[mazeIndex].maze.exit;
+		var maze = mazes[mazeIndex].maze.structure;
 
-	var visited = [],
-		queue = [], 
-		dir = { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3 };
+		var visited = [],
+			queue = [], 
+			dir = { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3 };
 
-	var entranceDir;
+		var entranceDir;
 
-	maze_length = maze.length;
-	if (entrance[0] == 0) {
-		entranceDir = dir.UP;
-	} else if (entrance[0] == maze_length-1) {
-		entranceDir = dir.DOWN;
-	} else if (entrance[1] == 0) {
-		entranceDir = dir.LEFT;
-	} else if (entrance[1] == maze_length-1) {
-		entranceDir = dir.RIGHT;
+		maze_length = maze.length;
+		if (entrance[0] == 0) {
+			entranceDir = dir.UP;
+		} else if (entrance[0] == maze_length-1) {
+			entranceDir = dir.DOWN;
+		} else if (entrance[1] == 0) {
+			entranceDir = dir.LEFT;
+		} else if (entrance[1] == maze_length-1) {
+			entranceDir = dir.RIGHT;
+		}
+
+		queue.push({ row: entrance[0], col: entrance[1], dir: entranceDir, torch: true });
+		while (queue.length != 0) {
+			var field = queue.shift();
+
+			if (field.dir != dir.UP && field.row > 0) { // can go up
+				if (maze[field.row-1][field.col] == 0) {
+					if (field.torch) {
+						queue.push({ row: field.row-1, col: field.col, dir: dir.DOWN, torch: false });
+					} else {
+						queue.push({ row: field.row-1, col: field.col, dir: dir.DOWN, torch: true });
+					}
+
+				}
+			}
+
+			if (field.dir != dir.DOWN && field.row < maze_length-1) { // can go down
+				if (maze[field.row+1][field.col] == 0) {
+					if (field.torch) {
+						queue.push({ row: field.row+1, col: field.col, dir: dir.UP, torch: false });
+					} else {
+						queue.push({ row: field.row+1, col: field.col, dir: dir.UP, torch: true });
+					}
+				}
+			}
+
+			if (field.dir != dir.RIGHT && field.col < maze_length-1) { // can go right
+				if (maze[field.row][field.col+1] == 0) {
+					if (field.torch) {
+						queue.push({ row: field.row, col: field.col+1, dir: dir.LEFT, torch: false });
+					} else {
+						queue.push({ row: field.row, col: field.col+1, dir: dir.LEFT, torch: true });
+					}
+				}
+			}
+
+			if (field.dir != dir.LEFT && field.col > 0) { // can go down
+				if (maze[field.row][field.col-1] == 0) {
+					if (field.torch) {
+						queue.push({ row: field.row, col: field.col-1, dir: dir.RIGHT, torch: false });
+					} else {
+						queue.push({ row: field.row, col: field.col-1, dir: dir.RIGHT, torch: true });
+					}
+
+				}
+			}
+
+			visited.push(field);
+		}
+
+		var torchNumber = 0;
+		for (i=0; i<visited.length; i++) {
+			if (visited[i].torch) {
+				torchNumber++;
+			}
+		}
+
+		var wallsPrice = wallPrice * wallsAndCorridorsNumber[0];
+		var corridorsPrice = corridorPrice * wallsAndCorridorsNumber[1];
+		var torchsPrice = torchPrice * torchNumber;
+
+		console.log("walls price: " + wallsPrice);
+		console.log("corridors price: " + corridorsPrice);
+		console.log("torchs price: " + torchsPrice);
+
+		var sum = wallsPrice + corridorsPrice + torchsPrice;
+
+		return { mazeExists: true, price: sum };
+	} else {
+		return { mazeExists: false };
 	}
-
-	queue.push({ row: entrance[0], col: entrance[1], dir: entranceDir, torch: true });
-	while (queue.length != 0) {
-		var field = queue.shift();
-
-		if (field.dir != dir.UP && field.row > 0) { // can go up
-			if (maze[field.row-1][field.col] == 0) {
-				if (field.torch) {
-					queue.push({ row: field.row-1, col: field.col, dir: dir.DOWN, torch: false });
-				} else {
-					queue.push({ row: field.row-1, col: field.col, dir: dir.DOWN, torch: true });
-				}
-
-			}
-		}
-
-		if (field.dir != dir.DOWN && field.row < maze_length-1) { // can go down
-			if (maze[field.row+1][field.col] == 0) {
-				if (field.torch) {
-					queue.push({ row: field.row+1, col: field.col, dir: dir.UP, torch: false });
-				} else {
-					queue.push({ row: field.row+1, col: field.col, dir: dir.UP, torch: true });
-				}
-			}
-		}
-
-		if (field.dir != dir.RIGHT && field.col < maze_length-1) { // can go right
-			if (maze[field.row][field.col+1] == 0) {
-				if (field.torch) {
-					queue.push({ row: field.row, col: field.col+1, dir: dir.LEFT, torch: false });
-				} else {
-					queue.push({ row: field.row, col: field.col+1, dir: dir.LEFT, torch: true });
-				}
-			}
-		}
-
-		if (field.dir != dir.LEFT && field.col > 0) { // can go down
-			if (maze[field.row][field.col-1] == 0) {
-				if (field.torch) {
-					queue.push({ row: field.row, col: field.col-1, dir: dir.RIGHT, torch: false });
-				} else {
-					queue.push({ row: field.row, col: field.col-1, dir: dir.RIGHT, torch: true });
-				}
-
-			}
-		}
-
-		visited.push(field);
-	}
-
-	var torchNumber = 0;
-	for (i=0; i<visited.length; i++) {
-		if (visited[i].torch) {
-			torchNumber++;
-		}
-	}
-
-	var wallsPrice = wallPrice * wallsAndCorridorsNumber[0];
-	var corridorsPrice = corridorPrice * wallsAndCorridorsNumber[1];
-	var torchsPrice = torchPrice * torchNumber;
-
-	console.log("walls price: " + wallsPrice);
-	console.log("corridors price: " + corridorsPrice);
-	console.log("torchs price: " + torchsPrice);
 }
 
 function getExitCoords(id) {
@@ -431,81 +426,88 @@ function getPath (id) {
 		}
 	}
 
-	var entrance = mazes[mazeIndex].maze.entrance;
-	var exit = mazes[mazeIndex].maze.exit;
-	var maze = mazes[mazeIndex].maze.structure;
+	if (mazeIndex != undefined) {
+		var entrance = mazes[mazeIndex].maze.entrance;
+		var exit = mazes[mazeIndex].maze.exit;
+		var maze = mazes[mazeIndex].maze.structure;
 
-	var visited = [],
-		queue = [], 
-		dir = { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3 };
+		var visited = [],
+			queue = [], 
+			dir = { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3 };
 
-	var entranceDir;
-	maze_length = maze.length;
-	if (entrance[0] == 0) {
-		entranceDir = dir.UP;
-	} else if (entrance[0] == maze_length-1) {
-		entranceDir = dir.DOWN;
-	} else if (entrance[1] == 0) {
-		entranceDir = dir.LEFT;
-	} else if (entrance[1] == maze_length-1) {
-		entranceDir = dir.RIGHT;
-	}
+		var entranceDir;
+		maze_length = maze.length;
+		if (entrance[0] == 0) {
+			entranceDir = dir.UP;
+		} else if (entrance[0] == maze_length-1) {
+			entranceDir = dir.DOWN;
+		} else if (entrance[1] == 0) {
+			entranceDir = dir.LEFT;
+		} else if (entrance[1] == maze_length-1) {
+			entranceDir = dir.RIGHT;
+		}
 
 
-	queue.push({ row: entrance[0], col: entrance[1], dir: entranceDir });
-	while (queue.length != 0) {
-		var field = queue.shift();
+		queue.push({ row: entrance[0], col: entrance[1], dir: entranceDir });
+		while (queue.length != 0) {
+			var field = queue.shift();
 
-		if (field.dir != dir.UP && field.row > 0) { // can go up
-			if (maze[field.row-1][field.col] == 0) {	
-				queue.push({ row: field.row-1, col: field.col, dir: dir.DOWN, rowPrev: field.row, colPrev: field.col });
+			if (field.dir != dir.UP && field.row > 0) { // can go up
+				if (maze[field.row-1][field.col] == 0) {	
+					queue.push({ row: field.row-1, col: field.col, dir: dir.DOWN, rowPrev: field.row, colPrev: field.col });
+				}
 			}
-		}
 
-		if (field.dir != dir.DOWN && field.row < maze_length-1) { // can go down
-			if (maze[field.row+1][field.col] == 0) {
-				queue.push({ row: field.row+1, col: field.col, dir: dir.UP, rowPrev: field.row, colPrev: field.col });
+			if (field.dir != dir.DOWN && field.row < maze_length-1) { // can go down
+				if (maze[field.row+1][field.col] == 0) {
+					queue.push({ row: field.row+1, col: field.col, dir: dir.UP, rowPrev: field.row, colPrev: field.col });
+				}
 			}
-		}
 
-		if (field.dir != dir.RIGHT && field.col < maze_length-1) { // can go right
-			if (maze[field.row][field.col+1] == 0) {
-				queue.push({ row: field.row, col: field.col+1, dir: dir.LEFT, rowPrev: field.row, colPrev: field.col });
+			if (field.dir != dir.RIGHT && field.col < maze_length-1) { // can go right
+				if (maze[field.row][field.col+1] == 0) {
+					queue.push({ row: field.row, col: field.col+1, dir: dir.LEFT, rowPrev: field.row, colPrev: field.col });
+				}
 			}
-		}
 
-		if (field.dir != dir.LEFT && field.col > 0) { // can go down
-			if (maze[field.row][field.col-1] == 0) {
-				queue.push({ row: field.row, col: field.col-1, dir: dir.RIGHT, rowPrev: field.row, colPrev: field.col });
+			if (field.dir != dir.LEFT && field.col > 0) { // can go down
+				if (maze[field.row][field.col-1] == 0) {
+					queue.push({ row: field.row, col: field.col-1, dir: dir.RIGHT, rowPrev: field.row, colPrev: field.col });
+				}
 			}
-		}
 
-		visited.push(field);
-		if (field.row == exit[0] && field.col == exit[1]) {
-			break;
-		}
-	}
-
-	debugger;
-
-	var path = [];
-	var tempField = [exit[0], exit[1]];
-	var visited_length = visited.length;
-
-	path.push([tempField[0],tempField[1]]);
-	while (tempField[0] != entrance[0] || tempField[1] != entrance[1]) {
-		for (var i=0; i<visited_length; i++) {
-			if (tempField[0] == visited[i].row && tempField[1] == visited[i].col) {
-				tempField[0] = visited[i].rowPrev;
-				tempField[1] = visited[i].colPrev;
-				path.push([tempField[0],tempField[1]]);
+			visited.push(field);
+			if (field.row == exit[0] && field.col == exit[1]) {
 				break;
 			}
 		}
+
+		debugger;
+
+		var path = [];
+		var tempField = [exit[0], exit[1]];
+		var visited_length = visited.length;
+
+		path.push([tempField[0],tempField[1]]);
+		while (tempField[0] != entrance[0] || tempField[1] != entrance[1]) {
+			for (var i=0; i<visited_length; i++) {
+				if (tempField[0] == visited[i].row && tempField[1] == visited[i].col) {
+					tempField[0] = visited[i].rowPrev;
+					tempField[1] = visited[i].colPrev;
+					path.push([tempField[0],tempField[1]]);
+					break;
+				}
+			}
+		}
+
+		path = path.reverse();
+		// situation when there is no maze of given id !!!
+		return path;
+	} else {
+		return []
 	}
 
-	path = path.reverse();
-	console.log(path);
+
 }
 
 function getElementsNumbers(id) {
@@ -542,8 +544,9 @@ function getElementsNumbers(id) {
 		resultArray.push(numberOfOnes);
 		resultArray.push(numberOfZeros);
 		return resultArray;
+	} else {
+		return [];
 	}
-	return [];
 }
 
 
