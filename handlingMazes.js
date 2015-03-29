@@ -56,6 +56,13 @@ function addMaze (maze, entrance) {
 	// there may not be chambers - four fields with zeros making squere
 	// there may not be cycles (loops) in maze
 
+	// check if entrance coords aren't bigger than maze dimension
+	if (entrance[0] >= numOfRows || entrance[1] >= numOfRows) {
+		// entrance coords are out of bound
+		message = "Entrance coords are out of bounds of maze.";
+		return message;
+	}
+
 	// check if entrance coords has value 0 in maze
 	if (maze[entrance[0]][entrance[1]] == 1) {
 		// entrance isn't 0
