@@ -1,29 +1,23 @@
 $(document).ready(function () {
 	console.log("ready!");
 	$("#saveMaze").click(function () {
-		var mazeAsText = $("#enteredMaze").val();
-		var entranceAsText = $("#entrance").val();
-		var rows = mazeAsText.split("\n");
 		var mazeArray = [];
 		var temp = [];
 
-		
-		// transforming entered string to array of inegers
-		for (var i=0; i<rows.length; i++) {
-			var k = rows[i].split("");
-			for (var j=0; j<k.length; j++) {
-				temp.push(parseInt(k[j]));
+		// new
+		var i, j, dimension, id;
+		dimension = parseInt($("#selectDimension").val());
+		for (i=0; i<dimension; i++) {
+			for (j=0; j<dimension; j++) {
+				id = "#field" + String(i) + String(j);
+				temp.push(parseInt($(id).find("span").text()));
 			}
 			mazeArray.push(temp);
 			temp = [];
 		}
 
-		// transforming entered entrance coords to array of integers
-		var splitedCoords = entranceAsText.split(",");
-		var entranceArray = [parseInt(splitedCoords[0]), parseInt(splitedCoords[1])];
-
-		console.log(mazeArray);
-		console.log(entranceArray);
+		var entranceArray = [parseInt($("#entranceRow").val()), 
+							 parseInt($("#entranceCol").val())];
 
 		objectToSend = {
 			maze: mazeArray,
@@ -47,6 +41,69 @@ $(document).ready(function () {
 			alert(errorThrown);
 		});	
 	});	
+
+	function drawMaze (dimension) {
+		var i, j, content, id, option;
+		$("#maze").empty();
+		for (i=0; i<dimension; i++) {
+			content = ""
+			content += "<div>";
+			for (j=0; j<dimension; j++) {
+				id = "id='field" + String(i) + String(j) +"'"
+				content += "<div " + id + " class='box box-one'><span class='field-value'>1</span></div>";
+			}
+			content += "</div>";
+			$('#maze').append(content);
+		}	
+
+		// event for clicking field of maze - changing field meaning
+		$(".box").click(function () {
+			if ($(this).hasClass('box-one')) {
+				$(this).removeClass('box-one').addClass('box-zero');
+				$(this).find("span").text("0");
+			} else {
+				$(this).removeClass('box-zero').addClass('box-one');
+				$(this).find("span").text("1");
+			}
+		});
+
+		// changing possible entrance coords acording to maze dimension
+		$("#entranceRow").empty();
+		$("#entranceCol").empty();
+		for (i=0; i<dimension; i++) {
+			option = $("<option></option>").text(i+1);
+			option.attr({
+				"value": i
+			});
+			$("#entranceRow").append(option);
+
+			option = $("<option></option>").text(i+1);
+			option.attr({
+				"value": i
+			});
+			$("#entranceCol").append(option);
+		}
+
+	};
+
+	(function () {
+		var i, option;
+		for (i=3; i<11; i++) {
+			option= $("<option></option>").text(i);
+			option.attr({
+				"value": i
+			})
+			$("#selectDimension").append(option);
+		}
+	})();
+
+	$("#selectDimension").change(function () {
+		var dimension = parseInt($("#selectDimension").val());
+		drawMaze(dimension);
+	});
+
+	drawMaze(3);
+
 })
 
 
