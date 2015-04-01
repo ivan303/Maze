@@ -123,8 +123,9 @@ function addMaze (maze, entrance) {
 	}
 	
 	if (numOfZerosOnExWalls != 2) {
-		// zeros on external wall not equal to 2
-		message = "There can be only two zeros on external fields - entrance and exit.";
+		// zeros on external wall not equal to 2	
+		message = "There must be exactly two zeros on external fields - entrance and exit.";
+		
 		return message;
 	}
 	
