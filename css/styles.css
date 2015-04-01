@@ -1,0 +1,20 @@
+.box {
+	text-align: center;
+	display: inline-block;
+	height: 80px;
+	width: 80px;
+	line-height: 80px;
+	border-style: solid;
+	border-width: 1px;
+}
+.box-one {
+	background-color: #80cbc4;
+}
+.box-zero {
+	background-color: #ec407a;
+}
+.field-value {
+	vertical-align: middle;
+	font-size: 30px;
+	font-weight: bold;
+}
