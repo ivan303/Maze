@@ -78,20 +78,31 @@ function calculateCosts (response, request, options) {
 		torchPrice,
 		countedCosts,
 		objToSend;
-	wallPrice = parseFloat(options.params.wallPrice);
-	corridorPrice = parseFloat(options.params.corridorPrice);
-	torchPrice = parseFloat(options.params.torchPrice);
-
-	countedCosts = handlingMazes.getCosts(options.mazeId, wallPrice, corridorPrice, torchPrice);
-
-	if (countedCosts.mazeExists) {
-		objToSend = { price: countedCosts.price };
-		response.writeHead(200, {"Content-Type": "application/json"});
-		response.write(JSON.stringify(objToSend));
-		response.end();
+	if (options.params.wallPrice != undefined && options.params.corridorPrice != undefined && options.params.torchPrice != undefined) {
+		if (!isNaN(options.params.wallPrice) && !isNaN(options.params.corridorPrice) && !isNaN(options.params.torchPrice)) {
+			wallPrice = parseFloat(options.params.wallPrice);
+			corridorPrice = parseFloat(options.params.corridorPrice);
+			torchPrice = parseFloat(options.params.torchPrice);
+			countedCosts = handlingMazes.getCosts(options.mazeId, wallPrice, corridorPrice, torchPrice);
+			if (countedCosts.mazeExists) {
+				objToSend = { price: countedCosts.price };
+				response.writeHead(200, {"Content-Type": "application/json"});
+				response.write(JSON.stringify(objToSend));
+				response.end();
+			} else {
+				response.writeHead(404, {"Content-Type": "text/plain"});
+				response.write("There isn't maze of id #" + String(options.mazeId));
+				response.end();
+			}
+		} else {
+			response.writeHead(400, {"Content-Type": "text/plain"});
+			response.write("One of params value isn't right numeric value.");
+			response.end();
+		}
+		
 	} else {
-		response.writeHead(200, {"Content-Type": "text/plain"});
-		response.write("There isn't maze of id #" + String(options.mazeId));
+		response.writeHead(400, {"Content-Type": "text/plain"});
+		response.write("One of entered params isn't correct or you forgot about some param.");
 		response.end();
 	}
 
@@ -124,6 +135,21 @@ function getJS (response, request, options) {
 	})
 };
 
+function getCSS (response, request, options) {
+
+	var path = options.pathname.slice(1);
+	fs.readFile(path, function(err, data) {
+		response.writeHead(200, {"Content-Type": "text/css"});
+		response.write(data);
+		response.end();
+	})
+}
+
+function getFavicon (response, request, options) {
+	response.writeHead(200, {"Content-Type": "image/x-icon"} );
+	response.end();
+}
+
 exports.createMazeGET = createMazeGET;
 exports.createMazePUT = createMazePUT;
 exports.describeMaze = describeMaze;
@@ -132,3 +158,5 @@ exports.calculateCosts = calculateCosts;
 exports.getPath = getPath;
 
 exports.getJS = getJS;
+exports.getCSS = getCSS;
+exports.getFavicon = getFavicon;
