@@ -5,7 +5,7 @@ function route(handle, pathname, response, request, parsedData) {
 	// function operating with regex to resolve url
 	var handlerKey = resolveURL(pathname, request);
 
-	if (typeof handle[handlerKey.path] === 'function') {
+	if (handlerKey != undefined && typeof handle[handlerKey.path] === 'function') {
 		handle[handlerKey.path](response, request, { pathname: pathname, parsedData: parsedData, mazeId: handlerKey.id, params: handlerKey.params });
 	} else {
 		console.log("No request handler found for " + pathname);
@@ -22,9 +22,9 @@ var urlMatcher = {
 	"quotation": /^\/maze\/[0-9]+\/quotation\/?$/,
 	"path": /^\/maze\/[0-9]+\/path\/?$/,
 
-	"js": /^\/js\/\S+.js$/,
-	"css": /^\/css\/\S+.css$/,
-	"favicon": /^\/favicon.ico$/
+	"js": /^\S*\/js\/\S+.js$/,
+	"css": /^\S*\/css\/\S+.css$/,
+	"favicon": /^\S*\/favicon.ico$/
 }
 
 function resolveURL (pathname, request) {
