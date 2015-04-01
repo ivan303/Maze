@@ -10,6 +10,8 @@ handle["/maze/id/exit"] = requestHandlers.getExit;
 handle["/maze/id/quotation"] = requestHandlers.calculateCosts;
 handle["/maze/id/path"] = requestHandlers.getPath;
 handle["/js"] = requestHandlers.getJS;
+handle["/css"] = requestHandlers.getCSS;
+handle["/favicon.ico"] = requestHandlers.getFavicon;
 
 
 server.start(router.route, handle);

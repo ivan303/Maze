@@ -22,7 +22,9 @@ var urlMatcher = {
 	"quotation": /^\/maze\/[0-9]+\/quotation\/?$/,
 	"path": /^\/maze\/[0-9]+\/path\/?$/,
 
-	"js": /^\/js\/\S+.js$/
+	"js": /^\/js\/\S+.js$/,
+	"css": /^\/css\/\S+.css$/,
+	"favicon": /^\/favicon.ico$/
 }
 
 function resolveURL (pathname, request) {
@@ -65,6 +67,12 @@ function resolveURL (pathname, request) {
 		case urlMatcher.js.test(pathname):
 			//console.log("route match to js file");
 			return { "path": "/js" }
+			break;
+		case urlMatcher.css.test(pathname):
+			return { "path": "/css" }
+			break;
+		case urlMatcher.favicon.test(pathname):
+			return { "path": "/favicon.ico"}
 			break;
 	}
 }
