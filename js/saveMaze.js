@@ -32,13 +32,9 @@ $(document).ready(function () {
 		data: jsonToSend,
 		dataType: 'json'
 		}).done(function (data, textStatus, jqXHR) { // textStatus == success
-			alert("Data Saved: " + data);
-			alert(textStatus);
-			alert(jqXHR);
+			alert("Success" + "\n" + "Your maze id: #" + data);
 		}).fail(function (jqXHR, textStatus, errorThrown) { // textStatus == error
-			alert("Fail " + jqXHR);
-			alert(textStatus);
-			alert(errorThrown);
+			alert("Fail" + "\n" + jqXHR.responseText);
 		});	
 	});	
 
