@@ -30,11 +30,11 @@ function createMazePUT(response, request, options) {
 	var creatingMazeResponse = handlingMazes.addMaze(maze, entrance);
 
 	if (typeof creatingMazeResponse === "number") { // maze properly created; maze id returned
-		response.writeHead(200, {"Content-Type": "text/plain"});
+		response.writeHead(201, {"Content-Type": "text/plain"});
 		response.write(String(creatingMazeResponse));
 		response.end();
 	} else if (typeof creatingMazeResponse === "string") { // maze not properly created; error message returned
-		response.writeHead(400, {"Content-Type": "text/plain"});
+		response.writeHead(422, {"Content-Type": "text/plain"});
 		response.write(creatingMazeResponse);
 		response.end();
 	}
@@ -47,13 +47,11 @@ function describeMaze (response, request, options) {
 	if (wallsAndCorridors.length != 0) {
 		objToSend = { walls: wallsAndCorridors[0], corridors: wallsAndCorridors[1] };
 		response.writeHead(200, {"Content-Type": "application/json"});
-		// response.write("Number of walls: " + String(wallsAndCorridors[0]) + "\n");
-		// response.write("Number of corridors: " + String(wallsAndCorridors[1]));
 		response.write(JSON.stringify(objToSend));
 		response.end();
 
 	} else {
-		response.writeHead(200, {"Content-Type": "text/plain"});
+		response.writeHead(404, {"Content-Type": "text/plain"});
 		response.write("There isn't maze of id #" + String(options.mazeId));
 		response.end();
 	}
@@ -67,7 +65,7 @@ function getExit (response, request, options) {
 		response.write(JSON.stringify(objToSend));
 		response.end();
 	} else {
-		response.writeHead(200, {"Content-Type": "text/plain"});
+		response.writeHead(404, {"Content-Type": "text/plain"});
 		response.write("There isn't maze of id #" + String(options.mazeId));
 		response.end();
 	}
@@ -118,7 +116,7 @@ function getPath (response, request, options) {
 		response.write(JSON.stringify(objToSend));
 		response.end();
 	} else {
-		response.writeHead(200, {"Content-Type": "application/json"});
+		response.writeHead(404, {"Content-Type": "application/json"});
 		response.write("There isn't maze of id #" + String(options.mazeId));
 		response.end();
 	}
@@ -126,8 +124,7 @@ function getPath (response, request, options) {
 
 function getJS (response, request, options) {
 
-	// need to extract path in another way
-	var path = options.pathname.slice(1);
+	var path = options.pathname.match(/js\/\S+.js/)[0];
 	fs.readFile(path, function(err, data) {
 		response.writeHead(200, {"Content-Type": "text/javascript"});
 		response.write(data);
@@ -137,7 +134,7 @@ function getJS (response, request, options) {
 
 function getCSS (response, request, options) {
 
-	var path = options.pathname.slice(1);
+	var path = options.pathname.match(/css\/\S+.css/)[0];
 	fs.readFile(path, function(err, data) {
 		response.writeHead(200, {"Content-Type": "text/css"});
 		response.write(data);
