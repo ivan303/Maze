@@ -28,12 +28,8 @@ var urlMatcher = {
 }
 
 function resolveURL (pathname, request) {
-	//console.log("in resolveURL");
-	//console.log(pathname);
-	//console.log(urlMatcher.maze);
 	switch (true) {
 		case urlMatcher.maze.test(pathname): 
-			//console.log("route matche to maze");
 			if (request.method == 'GET') {
 				return { "path": "GET:/maze" };	
 			} else if (request.method == 'PUT') {
@@ -41,31 +37,23 @@ function resolveURL (pathname, request) {
 			}
 			break;
 		case urlMatcher.describe.test(pathname):
-			// console.log("route match to describe");
 			var id = parseInt(pathname.match(/[0-9]+/)[0]);
 			return { "path": "/maze/id/describe", "id": id };
 			break;
 		case urlMatcher.exit.test(pathname):
-			// console.log("route match to exit");
 			var id = parseInt(pathname.match(/[0-9]+/)[0]);
 			return { "path": "/maze/id/exit", "id": id };
 			break;
 		case urlMatcher.quotation.test(pathname):
-			console.log("route match to quotation");
-			// debugger;
 			var id = parseInt(pathname.match(/[0-9]+/)[0]);
 			var params = url.parse(request.url, true).query;
-			console.log(typeof params);
-			console.log(params);
 			return { "path": "/maze/id/quotation", "id": id, "params": params };
 			break;
 		case urlMatcher.path.test(pathname):
-			// console.log("route match to path");
 			var id = parseInt(pathname.match(/[0-9]+/)[0]);
 			return { "path": "/maze/id/path", "id": id };
 			break;
 		case urlMatcher.js.test(pathname):
-			//console.log("route match to js file");
 			return { "path": "/js" }
 			break;
 		case urlMatcher.css.test(pathname):

@@ -67,13 +67,13 @@ $(document).ready(function () {
 		$("#entranceRow").empty();
 		$("#entranceCol").empty();
 		for (i=0; i<dimension; i++) {
-			option = $("<option></option>").text(i+1);
+			option = $("<option></option>").text(i);
 			option.attr({
 				"value": i
 			});
 			$("#entranceRow").append(option);
 
-			option = $("<option></option>").text(i+1);
+			option = $("<option></option>").text(i);
 			option.attr({
 				"value": i
 			});

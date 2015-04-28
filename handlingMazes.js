@@ -2,8 +2,7 @@
 
 // array of objects { maze: object, id: int }
 // maze = { structure: , entrance: , exit: }
-// during adding maze exits coords will be remembered as entrance coords
-// var mazes = [{ maze: { structure: [[1,1,1],[1,0,0],[1,0,1]], entrance: [2,1], exit: [1,2]}, id: 1 }],
+
 var mazes = [{ maze: { structure: [ [1,1,1,1,1,1,1,1],
 					 				[1,0,0,0,1,1,0,0],
 					 				[1,1,1,0,1,1,0,1],
@@ -409,7 +408,6 @@ function getExitCoords(id) {
 			break;
 		}
 	}
-	debugger;
 
 
 	if (mazeIndex != undefined) {
@@ -490,7 +488,7 @@ function getPath (id) {
 			}
 		}
 
-		debugger;
+		
 
 		var path = [];
 		var tempField = [exit[0], exit[1]];
@@ -509,7 +507,6 @@ function getPath (id) {
 		}
 
 		path = path.reverse();
-		// situation when there is no maze of given id !!!
 		return path;
 	} else {
 		return []

@@ -2,12 +2,6 @@ var fs = require('fs'),
 	handlingMazes = require('./handlingMazes');
 
 function createMazeGET(response, request) {
-	//console.log("Creating maze.");
-	//console.log("");
-	// console.log(request.method);
-	// console.log(request);
-
-	// handlingMazes.addMaze();
 
 	fs.readFile('html/maze.html', function(err, data) {
 		response.writeHead(200, {"Content-Type": "text/html"});
@@ -19,13 +13,6 @@ function createMazeGET(response, request) {
 function createMazePUT(response, request, options) {
 	var maze = options.parsedData.maze;
 	var entrance = options.parsedData.entrance;
-
-	console.log("createMazePUT");
-
-	// return value
-	console.log(maze);
-	console.log(entrance);
-	
 
 	var creatingMazeResponse = handlingMazes.addMaze(maze, entrance);
 
